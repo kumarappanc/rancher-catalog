@@ -25,12 +25,23 @@ services:
       io.rancher.container.hostname_override: container_name
       io.rancher.container.start_once: true
 
+  nginx-log:
+    image: alpine:latest
+    entrypoint:
+      - /bin/true
+    labels:
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.start_once: true
+    volumes:
+      - /var/log/nginx
+    net: none
+  
   nginx:
     image: artifactory.devops.itaas-cloud.com:6553/nginx-consultemplate:1.0.7859_23a9ea62
-    depends_on:
-      - "nginx-config"
-      - "nginx-ssl"
-      - "consul"
+    # depends_on:
+    #   - "nginx-config"
+    #   - "nginx-ssl"
+    #   - "consul"
     environment:
       - CONSUL_PORT_8500_TCP_ADDR=consul
       - LOG_LEVEL=debug
@@ -38,8 +49,8 @@ services:
       - CONFIG_JSON=/etc/nginx/config/consul_nginx_initial_config.json
       - CONFIG_JSON_LOAD=true  #remove this env variable to not load the ininital settings from json file
       - SERVICE_IGNORE=true
-    links:
-      - consul
+    # links:
+    #   - consul
     ports:
       - 80:80
       - 443:443
@@ -53,14 +64,25 @@ services:
       # - 127.0.0.1:8500:8500
       # - 127.0.0.1:8600:8600
       # - 127.0.0.1:8600:8600/udp
-    volumes:
-      - sl3_nginx_log:/var/log/nginx
     volumes_from:
       - nginx-config
       - nginx-ssl
+      - nginx-log
     labels:
       io.rancher.container.hostname_override: container_name
+      io.rancher.sidekicks: nginx-config,nginx-ssl,nginx-log
   
+  consul-data:
+    image: alpine:latest
+    entrypoint:
+      - /bin/true
+    labels:
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.start_once: true
+    volumes:
+      - /consul/data
+    net: none
+
   consul:
     image: consul:0.7.3
     command: agent -server -bootstrap-expect=$consul_bootstrap_expect -ui-dir /ui -bind 0.0.0.0 -client=0.0.0.0 -advertise=${private_ip}
@@ -70,8 +92,4 @@ services:
       - sl3_consul_data:/consul/data
     labels:
       io.rancher.container.hostname_override: container_name
-      io.rancher.container.start_once: true
-  
-volumes:
-  sl3_nginx_log:
-  sl3_consul_data:
+      io.rancher.sidekicks: consul-data
