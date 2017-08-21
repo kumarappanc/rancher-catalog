@@ -34,7 +34,6 @@ services:
       io.rancher.container.start_once: true
     volumes:
       - /var/log/nginx
-    net: none
   
   nginx:
     image: artifactory.devops.itaas-cloud.com:6553/nginx-consultemplate:1.0.7859_23a9ea62
@@ -81,7 +80,6 @@ services:
       io.rancher.container.start_once: true
     volumes:
       - /consul/data
-    net: none
 
   consul:
     image: consul:0.7.3
