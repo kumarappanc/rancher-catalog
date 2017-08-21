@@ -22,6 +22,6 @@
       label: "consul number of servers to bootstrap"
       required: true
       type: "string"
-      default: "1"
+      default: "3"
 consul:
-  scale: 1
+  scale: ($consul_bootstrap_expect - 1) 
