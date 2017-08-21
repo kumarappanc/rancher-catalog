@@ -42,14 +42,15 @@ services:
     #   - "nginx-ssl"
     #   - "consul"
     environment:
-      - CONSUL_PORT_8500_TCP_ADDR=consul-1
+      - CONSUL_PORT_8500_TCP_ADDR=consul
       - LOG_LEVEL=debug
       - CONSUL_KV_PREFIX=nginx
       - CONFIG_JSON=/etc/nginx/config/consul_nginx_initial_config.json
       - CONFIG_JSON_LOAD=true  #remove this env variable to not load the ininital settings from json file
       - SERVICE_IGNORE=true
     links:
-      - consul-1
+      - consul-1:consul
+      - consul-2:consul
     ports:
       - 80:80
       - 443:443
@@ -87,20 +88,20 @@ services:
     environment:
       - SERVICE_IGNORE=true
     volumes_from:
-      - consul_data
+      - consul-data
     labels:
       io.rancher.container.hostname_override: container_name
       io.rancher.sidekicks: consul-data
   
   consul-2:
     image: consul:0.7.3
-    command: agent -server -join consul-1
+    command: agent -server -join consul
     environment:
       - SERVICE_IGNORE=true
     volumes_from:
-      - consul_data
+      - consul-data
     links:
-      - consul-1
+      - consul-1:consul
     labels:
       io.rancher.container.hostname_override: container_name
       io.rancher.sidekicks: consul-data
