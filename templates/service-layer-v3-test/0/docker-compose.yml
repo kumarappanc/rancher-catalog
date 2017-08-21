@@ -83,7 +83,7 @@ services:
 
   consul:
     image: consul:0.7.3
-    command: agent -server -bootstrap-expect=$consul_bootstrap_expect -ui-dir /ui -bind 0.0.0.0 -client=0.0.0.0 -advertise=${private_ip}
+    command: agent -server -bootstrap-expect=$consul_bootstrap_expect -ui-dir /ui -bind 0.0.0.0 -client=0.0.0.0
     environment:
       - SERVICE_IGNORE=true
     volumes:
