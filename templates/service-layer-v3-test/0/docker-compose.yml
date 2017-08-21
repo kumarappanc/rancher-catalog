@@ -95,13 +95,11 @@ services:
   
   consul-2:
     image: consul:0.7.3
-    command: agent -server -join consul
+    command: agent -server -join consul-1
     environment:
       - SERVICE_IGNORE=true
     volumes_from:
       - consul_data
-    links:
-      - consul-1:consul
     labels:
       io.rancher.container.hostname_override: container_name
       io.rancher.sidekicks: consul-data
