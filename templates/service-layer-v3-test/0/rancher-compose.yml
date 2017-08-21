@@ -21,5 +21,3 @@
       default: true
 consul:
   scale: 3
-nginx:
-  scale: 3
