@@ -1,7 +1,7 @@
 version: '2'
 services:
   nginx-config:
-    image: artifactory.devops.itaas-cloud.com:6553/nginx-config
+    image: artifactory.devops.itaas-cloud.com:6553/nginx-config:1.0.7859_23a9ea62
     network_mode: none
     entrypoint:
       - /bin/true
@@ -9,9 +9,11 @@ services:
       - configs=$consul_configs
     volumes:
       - /etc/nginx/config
-
+    labels:
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.start_once: true
   nginx-ssl:
-    image: artifactory.devops.itaas-cloud.com:6553/nginx-ssl
+    image: artifactory.devops.itaas-cloud.com:6553/nginx-ssl:1.0.7859_23a9ea62
     entrypoint:
       - /bin/true
     environment:
@@ -19,9 +21,12 @@ services:
       - apiKey=$apiKey
     volumes:
       - /etc/nginx/ssl
-  
+    labels:
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.start_once: true
+
   nginx:
-    image: artifactory.devops.itaas-cloud.com:6553/nginx-consultemplate
+    image: artifactory.devops.itaas-cloud.com:6553/nginx-consultemplate:1.0.7859_23a9ea62
     depends_on:
       - "nginx-config"
       - "nginx-ssl"
@@ -40,27 +45,32 @@ services:
       - 443:443
       - 5671:5671
       - 8080:8080
-      - 8300:8300
-      - 8301:8301
-      - 8301:8301/udp
-      - 8302:8302
-      - 8302:8302/udp
-      - 127.0.0.1:8500:8500
-      - 127.0.0.1:8600:8600
-      - 127.0.0.1:8600:8600/udp
+      # - 8300:8300
+      # - 8301:8301
+      # - 8301:8301/udp
+      # - 8302:8302
+      # - 8302:8302/udp
+      # - 127.0.0.1:8500:8500
+      # - 127.0.0.1:8600:8600
+      # - 127.0.0.1:8600:8600/udp
     volumes:
       - sl3_nginx_log:/var/log/nginx
     volumes_from:
       - nginx-config
       - nginx-ssl
+    labels:
+      io.rancher.container.hostname_override: container_name
   
   consul:
     image: consul:0.7.3
-    command: agent -server -bootstrap-expect=$consul_bootstrap_expect -ui-dir /ui -bind 0.0.0.0 -client=0.0.0.0 -advertise=0.0.0.0
+    command: agent -server -bootstrap-expect=$consul_bootstrap_expect -ui-dir /ui -bind 0.0.0.0 -client=0.0.0.0 -advertise=${private_ip}
     environment:
       - SERVICE_IGNORE=true
     volumes:
       - sl3_consul_data:/consul/data
+    labels:
+      io.rancher.container.hostname_override: container_name
+      io.rancher.container.start_once: true
   
 volumes:
   sl3_nginx_log:
