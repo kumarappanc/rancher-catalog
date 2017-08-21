@@ -23,5 +23,7 @@
       required: true
       type: "string"
       default: "3"
-consul:
-  scale: 3
+consul-1:
+  scale: 1
+consul-2:
+  scale: 2
